@@ -64,8 +64,8 @@ def pre_process(opt: Namespace) -> None:
 
     # names for the directories of datasets and splits
     ds_name = os.path.basename(opt.data_path)
-    preprocessed_path = os.path.join('datasets', ds_name + '_truth')
-    blurred_path = os.path.join('datasets', ds_name + '_blurred')
+    preprocessed_path = os.path.join(ds_name + '_truth')
+    blurred_path = os.path.join(ds_name + '_blurred')
     split_names = [f'train_{opt.dataset_sizes[0]}',
                    f'valid_{opt.dataset_sizes[1]}',
                    f'test_{opt.dataset_sizes[2]}']
@@ -133,4 +133,4 @@ if __name__ == "__main__":
                         help='number of pictures in the train, validation and test sets respectively')
 
     args = parser.parse_args()
-    pre_process(args)
+    pre_process(opt=args)
