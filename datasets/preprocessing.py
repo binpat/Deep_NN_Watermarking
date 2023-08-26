@@ -51,8 +51,7 @@ def pre_process(opt: Namespace) -> None:
     the same for the preprocessed ground truth image (in the safe_path_truth directory)
     as for the respective blurred image (in the safe_path_processed directory).
 
-    Args:
-        opt (Namespace): parsed arguments passed to the function
+    :param opt: parsed arguments passed to the function
     """
     # get the paths of all the images to be processed
     img_paths = glob.glob(os.path.join(opt.data_path, '*'), recursive=True)

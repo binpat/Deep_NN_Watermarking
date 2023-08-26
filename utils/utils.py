@@ -47,13 +47,12 @@ def save_img_batch(opt: Namespace, imgs: List[torch.Tensor], batch: int, epoch: 
     """
     Function to save images from current batch.
 
-    Args:
-        :param opt: parsed arguments passed to the main function
-        :param imgs: list of images to be plotted
-        :param batch: current batch
-        :param epoch: current epoch
-        :param directory: path where the visualization should be saved to
-        :param deblurring: whether deblurring settings should be used for plotting
+    :param opt: parsed arguments passed to the main function
+    :param imgs: list of images to be plotted
+    :param batch: current batch
+    :param epoch: current epoch
+    :param directory: path where the visualization should be saved to
+    :param deblurring: whether deblurring settings should be used for plotting
     """
     result = torch.cat(imgs, 0)
 

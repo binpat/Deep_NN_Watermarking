@@ -36,6 +36,11 @@ from blur_dataset import BlurDataset
 
 
 def main(opt: Namespace) -> None:
+    """
+    Main file for training a deblurring convolutional neural network.
+
+    :param opt: parsed arguments passed to the function
+    """
     # get device on which the model is trained and prepare directories
     device = get_device()
     directories = create_dirs(['checkpoints', 'train_imgs', 'valid_imgs', 'logs'], 'deblurring')
@@ -145,7 +150,7 @@ def main(opt: Namespace) -> None:
         lr_scheduler.step(losses / n_batches)
         torch.save(
             model.state_dict(),
-            os.path.join(directories['checkpoints'], f'ckpt_epoch_{epoch:02d}')
+            os.path.join(directories['checkpoints'], f'ckpt_epoch_{epoch:02d}.pt')
         )
 
 
@@ -180,13 +185,13 @@ if __name__ == "__main__":
                         help='plot images each plot_batch batches')
     parser.add_argument('--ckpt_path', type=str, nargs='?',
                         default=None,
-                        help='checkpoint path to continue training')
+                        help='[optional] checkpoint path to continue training')
 
     # advanced settings
     parser.add_argument('--seed', type=int, nargs='?', default=None,
-                        help='fix a seed for training and enable deterministic training')
+                        help='[optional] fix a seed for training and enable deterministic training')
     parser.add_argument('--crop_std', type=int, nargs='?', default=None,
-                        help='standard deviation for crop width, enables random center crop and resizing')
+                        help='[optional] standard deviation for crop width, enables random center crop and resizing')
     parser.add_argument('--img_size', type=Tuple[int, int], default=(256, 256),
                         help='size in pixels of the resulting image')
 
