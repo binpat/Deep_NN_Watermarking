@@ -42,7 +42,8 @@ def _image_grid(array: np.ndarray, n_cols: int) -> np.ndarray:
     return img_grid
 
 
-def save_img_batch(opt: Namespace, imgs: List[torch.Tensor], batch: int, epoch: int, directory: str) -> None:
+def save_img_batch(opt: Namespace, imgs: List[torch.Tensor], batch: int, epoch: int, directory: str,
+                   deblurring: bool = False) -> None:
     """
     Function to save images from current batch.
 
@@ -52,30 +53,37 @@ def save_img_batch(opt: Namespace, imgs: List[torch.Tensor], batch: int, epoch: 
         :param batch: current batch
         :param epoch: current epoch
         :param directory: path where the visualization should be saved to
+        :param deblurring: whether deblurring settings should be used for plotting
     """
     result = torch.cat(imgs, 0)
 
-    grid = _image_grid(result.cpu().detach().numpy(), n_cols=opt.batch_size).astype(dtype=np.uint8)
+    grid = _image_grid(result.cpu().detach().numpy(), n_cols=opt.batch_size)
     path = os.path.join(directory, f'{epoch:03d}_{batch:02d}.png')
 
-    plt.imsave(fname=path, arr=grid, cmap='gray')  # , vmin=0, vmax=1)
+    if deblurring:
+        plt.imsave(fname=path, arr=grid.astype(dtype=np.uint8), cmap='gray')
+    else:
+        plt.imsave(fname=path, arr=grid, cmap='gray', vmin=0, vmax=1)
 
 
-def create_dirs(dir_names: List[str]) -> Dict[str, str]:
+def create_dirs(dir_names: List[str], main_dir: str) -> Dict[str, str]:
     """
     Creates various directories concerned with a training experiment to
     store information on the training process.
+
+    :param dir_names: list of strings with directory names
+    :param main_dir: main directory name
 
     :return:
         (dict): paths to the created directories
     """
     cur_time = time.strftime('%Y-%m-%d-%H_%M_%S', time.localtime())
-    os.makedirs('experiments', exist_ok=True)
+    os.makedirs(os.path.join(main_dir, 'experiments'), exist_ok=True)
 
     experiment_dir = 'experiments/experiment_' + cur_time
     directories = dict(zip(dir_names, [None]*len(dir_names)))
     for directory in directories.keys():
-        directories[directory] = os.path.join(experiment_dir, directory)
+        directories[directory] = os.path.join(main_dir, experiment_dir, directory)
         os.makedirs(directories[directory], exist_ok=True)
 
     return directories
@@ -106,10 +114,8 @@ def random_crop(imgs: List[torch.Tensor], crop_std: int, img_size: Tuple[int, in
     """
     border_size = int(torch.normal(0, crop_std, (1, 1)).round().abs()[0, 0])
     border_transform = transforms.Compose([
-        transforms.CenterCrop(
-            (img_size[0] - 5 * border_size, img_size[1] - 5 * border_size)),
-        transforms.Resize(img_size),
+        transforms.CenterCrop((img_size[0] - 5 * border_size, img_size[1] - 5 * border_size)),
+        transforms.Resize(img_size, antialias=False),
     ])
 
     return [border_transform(img) for img in imgs]
-

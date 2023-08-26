@@ -17,10 +17,14 @@ from torch.utils.data import DataLoader
 import torch.nn as nn
 import torch
 
-from typing import Optional, Tuple
+from typing import Tuple
 
 import random
+import sys
 import os
+
+parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+sys.path.append(parent_dir)
 
 from utils.utils import create_dirs, get_device, random_crop, save_img_batch
 from utils.logger import Logger
@@ -34,7 +38,7 @@ from blur_dataset import BlurDataset
 def main(opt: Namespace) -> None:
     # get device on which the model is trained and prepare directories
     device = get_device()
-    directories = create_dirs(['checkpoints', 'train_imgs', 'valid_imgs', 'logs'])
+    directories = create_dirs(['checkpoints', 'train_imgs', 'valid_imgs', 'logs'], 'deblurring')
 
     # prepare logger
     logger = Logger(log_path=os.path.join(directories['logs'], 'log.txt'))
@@ -133,7 +137,8 @@ def main(opt: Namespace) -> None:
                         imgs=[blur_imgs, pred, truth_imgs],
                         batch=i,
                         epoch=epoch,
-                        directory=plot_dir
+                        directory=plot_dir,
+                        deblurring=True
                     )
 
         # update schedular and save model checkpoint
@@ -145,20 +150,23 @@ def main(opt: Namespace) -> None:
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(
+        prog='Deblurring',
+        description='Trains a simple neural network on image deblurring.'
+    )
 
     # training data sets
-    parser.add_argument('--blur_path_train', type=str, default="../datasets/VOC_blurred/train_80",
+    parser.add_argument('--blur_path_train', type=str, default="datasets/VOC_blurred/train_80",
                         help='training data path to blurred images')
     parser.add_argument('--truth_path_train', type=str,
-                        default="../datasets/VOC_truth/train_80",
+                        default="datasets/VOC_truth/train_80",
                         help='training data path to ground truth images')
 
     # validation data sets
-    parser.add_argument('--blur_path_valid', type=str, default="../datasets/VOC_blurred/valid_32",
+    parser.add_argument('--blur_path_valid', type=str, default="datasets/VOC_blurred/valid_32",
                         help='validation data path to blurred images')
     parser.add_argument('--truth_path_valid', type=str,
-                        default="../datasets/VOC_blurred/valid_32",
+                        default="datasets/VOC_blurred/valid_32",
                         help='validation data path to ground truth images')
 
     # train options
@@ -170,14 +178,14 @@ if __name__ == "__main__":
                         help='number of epochs for training')
     parser.add_argument('--plot_batch', type=int, default=3,
                         help='plot images each plot_batch batches')
-    parser.add_argument('--ckpt_path', type=Optional[str],
+    parser.add_argument('--ckpt_path', type=str, nargs='?',
                         default=None,
                         help='checkpoint path to continue training')
 
-    # advanced options
-    parser.add_argument('--seed', type=Optional[int], default=None,
+    # advanced settings
+    parser.add_argument('--seed', type=int, nargs='?', default=None,
                         help='fix a seed for training and enable deterministic training')
-    parser.add_argument('--crop_std', type=Optional[int], default=None,
+    parser.add_argument('--crop_std', type=int, nargs='?', default=None,
                         help='standard deviation for crop width, enables random center crop and resizing')
     parser.add_argument('--img_size', type=Tuple[int, int], default=(256, 256),
                         help='size in pixels of the resulting image')
