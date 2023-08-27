@@ -1,0 +1,10 @@
+
+.DS_Store
+*.iml
+*.xml
+*.pt
+*/experiments/*
+*.pyc
+datasets/*/valid*/*.png
+datasets/*/test*/*.png
+datasets/*/train*/*.png

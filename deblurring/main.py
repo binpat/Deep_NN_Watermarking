@@ -58,7 +58,7 @@ def main(opt: Namespace) -> None:
 
     # fix seed if deterministic training is enabled
     if type(opt.seed) is int:
-        logger.log(f'Deterministic training with seed {opt.seed}')
+        logger.log(f'Deterministic training enabled with seed {opt.seed}')
         torch.manual_seed(opt.seed)
         random.seed(opt.seed)
         np.random.seed(opt.seed)
@@ -146,7 +146,7 @@ def main(opt: Namespace) -> None:
                         deblurring=True
                     )
 
-        # update schedular and save model checkpoint
+        # update scheduler and save model checkpoint
         lr_scheduler.step(losses / n_batches)
         torch.save(
             model.state_dict(),

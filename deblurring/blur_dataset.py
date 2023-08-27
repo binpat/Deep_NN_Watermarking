@@ -22,6 +22,12 @@ class BlurDataset(Dataset):
     Blur dataset to be used for training model to be protected.
     """
     def __init__(self, blur_path: str, truth_path: str) -> None:
+        """
+        Images in blur_path and truth_path are expected to be preprocessed by preprocessing.py
+
+        :param blur_path: path to the directory where the blurred images are saved
+        :param truth_path: path to the directory where the ground truth images are saved
+        """
         self.blur_path = os.path.join(blur_path, '*.png')
         self.truth_path = os.path.join(truth_path, '*.png')
 
@@ -36,6 +42,14 @@ class BlurDataset(Dataset):
             self.length = len(self.blur_img_paths)
 
     def __getitem__(self, item: int) -> Tuple[Tensor, Tensor]:
+        """
+        Loads images from datasets given an index and applies transformations to PyTorch Tensors
+
+        :param item: index of the images to be loaded
+
+        :returns:
+            loaded images as tuple of PyTorch Tensors
+        """
         blur_img_path = self.blur_img_paths[item]
         truth_img_path = self.truth_img_paths[item]
 
