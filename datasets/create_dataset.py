@@ -71,7 +71,7 @@ def dataset_from_model(opt: Namespace) -> None:
 
     transform_watermark = transforms.Compose([
         transforms.ToTensor(),
-        transforms.Grayscale(),
+        transforms.Grayscale(num_output_channels=1),
         transforms.Resize(opt.img_size),
     ])
 

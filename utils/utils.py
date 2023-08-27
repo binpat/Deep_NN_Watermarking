@@ -7,14 +7,11 @@ Author: Patrick Binder
 Date: 25.08.2023
 """
 
-
 import matplotlib.pyplot as plt
 import numpy as np
 
-from argparse import Namespace
-
 from typing import Dict, List, Tuple
-
+from argparse import Namespace
 from torchvision import transforms
 
 import torch

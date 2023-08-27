@@ -13,6 +13,8 @@ import os
 from typing import Optional
 from argparse import Namespace
 
+import torch.nn as nn
+
 
 def count_parameters(model) -> int:
     return sum(p.numel() for p in model.parameters() if p.requires_grad)
@@ -45,7 +47,7 @@ class Logger:
         if self.console and write:
             print(text)
 
-    def log_model(self, model, ckpt_path: Optional[str]) -> None:
+    def log_model(self, model: nn.Module, ckpt_path: Optional[str]) -> None:
         self.log(str(model))
         self.log(f'Number of trainable parameters: {count_parameters(model)}')
         if ckpt_path is not None:
