@@ -128,7 +128,7 @@ if __name__ == "__main__":
     # sizes
     parser.add_argument('--img_size', type=Tuple[int, int], default=(256, 256),
                         help='size in pixels of the resulting image')
-    parser.add_argument('--dataset_sizes', type=Tuple[int, int, int], default=(80, 32, 32),
+    parser.add_argument('--dataset_sizes', type=Tuple[int, int, int], default=(3008, 160, 160),
                         help='number of pictures in the train, validation and test sets respectively')
 
     args = parser.parse_args()

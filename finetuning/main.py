@@ -193,30 +193,22 @@ if __name__ == "__main__":
 
     # training data sets
     parser.add_argument('--wmark_sm_path_train', type=str,
-                        default="datasets/VOC_deblurred_sm/train_80",
                         help='training data path to images deblurred by SM (with watermark)')
     parser.add_argument('--wmark_h_path_train', type=str,
-                        default="datasets/VOC_watermarked/train_80",
                         help='training data path to images deblurred by M and watermarked by H')
     parser.add_argument('--clear_blurred_path_train', type=str,
-                        default="datasets/VOC_blurred/train_80",
                         help='training data path to blurred images (without watermark)')
     parser.add_argument('--clear_deblurred_path_train', type=str,
-                        default="datasets/VOC_deblurred_cnn/train_80",
                         help='training data path to images deblurred by M (without watermark)')
 
     # validation data sets
     parser.add_argument('--wmark_sm_path_valid', type=str,
-                        default="datasets/VOC_deblurred_sm/valid_32",
                         help='validation data path to images deblurred by SM (with watermark)')
     parser.add_argument('--wmark_h_path_valid', type=str,
-                        default="datasets/VOC_watermarked/valid_32",
                         help='validation data path to images deblurred by M and watermarked by H')
     parser.add_argument('--clear_blurred_path_valid', type=str,
-                        default="datasets/VOC_blurred/valid_32",
                         help='validation data path to blurred images (without watermark)')
     parser.add_argument('--clear_deblurred_path_valid', type=str,
-                        default="datasets/VOC_deblurred_cnn/valid_32",
                         help='validation data path to images deblurred by M (without watermark)')
 
     # dataloader settings
@@ -237,8 +229,6 @@ if __name__ == "__main__":
     parser.add_argument('--plot_batch', type=int, default=3,
                         help='each plot_batch batches the currently progresses images are plotted')
     parser.add_argument('--ckpt_path', type=str,
-                        default='image_watermarking/experiments/'
-                                'experiment_2023-08-26-21_27_47/checkpoints/r_net_ckpt_epoch_49.pt',
                         help='path to reconstruction network model training checkpoint, to continue training')
 
     # watermark image paths

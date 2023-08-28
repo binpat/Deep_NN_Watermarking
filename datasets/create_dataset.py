@@ -142,9 +142,9 @@ if __name__ == '__main__':
     )
 
     # dataset paths
-    parser.add_argument('--input_path', type=str, default='datasets/VOC_blurred',
+    parser.add_argument('--input_path', type=str,
                         help='input dataset to model')
-    parser.add_argument('--save_path', type=str, default='datasets/VOC_deblurred_sm',
+    parser.add_argument('--save_path', type=str,
                         help='directory to save the new images to')
 
     # M - CNN
@@ -154,8 +154,7 @@ if __name__ == '__main__':
 
     # SM - Conv
     parser.add_argument('--conv_ckpt_path', type=str, nargs='?',
-                        default='deblurring/experiments/'
-                                'experiment_2023-08-27-21_12_47/checkpoints/ckpt_epoch_199.pt',
+                        default=None,
                         help='[optional] path to saved Conv checkpoint')
 
     # Hnet - UNet

@@ -158,21 +158,19 @@ if __name__ == "__main__":
     )
 
     # training data sets
-    parser.add_argument('--blur_path_train', type=str, default="datasets/VOC_blurred/train_80",
+    parser.add_argument('--blur_path_train', type=str,
                         help='training data path to blurred images')
     parser.add_argument('--truth_path_train', type=str,
-                        default="datasets/VOC_watermarked/train_80",
                         help='training data path to ground truth images')
 
     # validation data sets
-    parser.add_argument('--blur_path_valid', type=str, default="datasets/VOC_blurred/valid_32",
+    parser.add_argument('--blur_path_valid', type=str,
                         help='validation data path to blurred images')
     parser.add_argument('--truth_path_valid', type=str,
-                        default="datasets/VOC_watermarked/valid_32",
                         help='validation data path to ground truth images')
 
     # train options
-    parser.add_argument('--model', type=str, default='conv',
+    parser.add_argument('--model', type=str, default='cnn',
                         help="model to be trained: either 'cnn' or 'conv'")
     parser.add_argument('--batch_size', type=int, default=16,
                         help='batch size used for training and validation')
