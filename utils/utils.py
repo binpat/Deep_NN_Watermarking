@@ -39,8 +39,8 @@ def _image_grid(array: np.ndarray, n_cols: int) -> np.ndarray:
     return img_grid
 
 
-def save_img_batch(opt: Namespace, imgs: List[torch.Tensor], batch: int, epoch: int, directory: str,
-                   deblurring: bool = False) -> None:
+def save_img_batch(opt: Namespace, imgs: List[torch.Tensor], batch: int,
+                   epoch: int, directory: str, deblurring: bool = False) -> None:
     """
     Function to save images from current batch.
 

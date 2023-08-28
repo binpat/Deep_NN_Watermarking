@@ -1,0 +1,19 @@
+2023-08-27-21_27_04
+Arguments:
+	wmark_sm_path_train: datasets/VOC_deblurred_sm/train_80
+	wmark_h_path_train: datasets/VOC_watermarked/train_80
+	clear_blurred_path_train: datasets/VOC_blurred/train_80
+	clear_deblurred_path_train: datasets/VOC_deblurred_cnn/train_80
+	wmark_sm_path_valid: datasets/VOC_deblurred_sm/valid_32
+	wmark_h_path_valid: datasets/VOC_watermarked/valid_32
+	clear_blurred_path_valid: datasets/VOC_blurred/valid_32
+	clear_deblurred_path_valid: datasets/VOC_deblurred_cnn/valid_32
+	batch_size: 16
+	num_workers: 4
+	lr: 0.0001
+	beta1: 0.5
+	n_epochs: 20
+	plot_batch: 5
+	ckpt_path: image_watermarking/experiments/experiment_2023-08-26-21_27_47/checkpoints/r_net_ckpt_epoch_49.pt
+	watermark: image_watermarking/watermarks/flower_rgb.png
+	watermark_clean: image_watermarking/watermarks/clean.png

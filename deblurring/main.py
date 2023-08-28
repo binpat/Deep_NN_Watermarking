@@ -104,11 +104,8 @@ def main(opt: Namespace) -> None:
             for i, batch in enumerate(pbar := tqdm(dataloaders[phase])):
 
                 with torch.set_grad_enabled(phase == 'train'):
-                    blur_imgs = batch[0].to(device).float()
-                    truth_imgs = batch[1].to(device).float()
-
-                    blur_imgs = blur_imgs[:, :1, :, :]
-                    truth_imgs = truth_imgs[:, :1, :, :]
+                    blur_imgs = batch[0].to(device).float()[:, :1, :, :]
+                    truth_imgs = batch[1].to(device).float()[:, :1, :, :]
 
                     # apply random center crop and resizing if enabled
                     if type(opt.crop_std) == int:
@@ -131,16 +128,16 @@ def main(opt: Namespace) -> None:
                     losses += loss.detach().cpu()
 
                 # report loss
-                msg = f'[{epoch}/{opt.n_epochs}][{i}/{n_batches}][{phase}] loss: {losses / i+1:.4f}'
-                logger.log(msg, write=i + 1 == n_batches)
+                msg = f'[{epoch}/{opt.n_epochs}][{i+1}/{n_batches}][{phase}] loss: {losses / (i+1):.4f}'
+                logger.log(msg, write=i+1 == n_batches)
                 pbar.set_description(msg)
 
                 # plot images
-                if i % opt.plot_batch == 0:
+                if (i+1) % opt.plot_batch == 0:
                     save_img_batch(
                         opt=opt,
                         imgs=[blur_imgs, pred, truth_imgs],
-                        batch=i,
+                        batch=i+1,
                         epoch=epoch,
                         directory=plot_dir,
                         deblurring=True
@@ -164,18 +161,18 @@ if __name__ == "__main__":
     parser.add_argument('--blur_path_train', type=str, default="datasets/VOC_blurred/train_80",
                         help='training data path to blurred images')
     parser.add_argument('--truth_path_train', type=str,
-                        default="datasets/VOC_truth/train_80",
+                        default="datasets/VOC_watermarked/train_80",
                         help='training data path to ground truth images')
 
     # validation data sets
     parser.add_argument('--blur_path_valid', type=str, default="datasets/VOC_blurred/valid_32",
                         help='validation data path to blurred images')
     parser.add_argument('--truth_path_valid', type=str,
-                        default="datasets/VOC_blurred/valid_32",
+                        default="datasets/VOC_watermarked/valid_32",
                         help='validation data path to ground truth images')
 
     # train options
-    parser.add_argument('--model', type=str, default='cnn',
+    parser.add_argument('--model', type=str, default='conv',
                         help="model to be trained: either 'cnn' or 'conv'")
     parser.add_argument('--batch_size', type=int, default=16,
                         help='batch size used for training and validation')

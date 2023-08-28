@@ -72,7 +72,7 @@ def dataset_from_model(opt: Namespace) -> None:
     transform_watermark = transforms.Compose([
         transforms.ToTensor(),
         transforms.Grayscale(num_output_channels=1),
-        transforms.Resize(opt.img_size),
+        transforms.Resize(opt.img_size, antialias=True),
     ])
 
     # load required models
@@ -144,7 +144,7 @@ if __name__ == '__main__':
     # dataset paths
     parser.add_argument('--input_path', type=str, default='datasets/VOC_blurred',
                         help='input dataset to model')
-    parser.add_argument('--save_path', type=str, default='datasets/VOC_deblurred_conv',
+    parser.add_argument('--save_path', type=str, default='datasets/VOC_deblurred_sm',
                         help='directory to save the new images to')
 
     # M - CNN
@@ -154,7 +154,8 @@ if __name__ == '__main__':
 
     # SM - Conv
     parser.add_argument('--conv_ckpt_path', type=str, nargs='?',
-                        default=None,
+                        default='deblurring/experiments/'
+                                'experiment_2023-08-27-21_12_47/checkpoints/ckpt_epoch_199.pt',
                         help='[optional] path to saved Conv checkpoint')
 
     # Hnet - UNet

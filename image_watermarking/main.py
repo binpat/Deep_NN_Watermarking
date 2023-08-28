@@ -21,11 +21,11 @@ from torch.optim.lr_scheduler import ReduceLROnPlateau
 from torch.utils.data import DataLoader
 from torchvision import transforms
 
+from typing import Dict, List, Tuple, Optional
+from PIL import Image
+
 import sys
 import os
-
-from typing import Dict, List, Tuple
-from PIL import Image
 
 parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 sys.path.append(parent_dir)
@@ -55,41 +55,50 @@ def main(opt: Namespace):
     logger.log_arguments(opt)
 
     # create training and evaluation dataloader
-    train_loader = DataLoader(
-        dataset=WatermarkingDataset(opt.train_data),
-        batch_size=opt.batch_size,
-        shuffle=True,
-        num_workers=opt.num_workers,
-        pin_memory=True,
-    )
+    train_loader, valid_loader = None, None
+    dataloaders: Dict[str, Optional[DataLoader]] = {'train': train_loader, 'valid': valid_loader}
 
-    valid_loader = DataLoader(
-        dataset=WatermarkingDataset(opt.valid_data),
-        batch_size=opt.batch_size,
-        shuffle=False,
-        num_workers=opt.num_workers,
-        pin_memory=True,
-    )
-    dataloaders: Dict[str, DataLoader] = {'train': train_loader, 'valid': valid_loader}
+    for phase in dataloaders.keys():
+        dataloaders[phase] = DataLoader(
+            dataset=WatermarkingDataset(opt.train_data if phase == 'train' else opt.valid_data),
+            batch_size=opt.batch_size,
+            shuffle=phase == 'train',
+            num_workers=opt.num_workers,
+            pin_memory=True,
+        )
 
-    # initialize hiding, reconstruction and discriminator networks and their optimizers
+    # create dictionaries for easier processing of all models
     models: List[str] = ['h', 'r', 'd']
-    ckpt_paths: Dict[str, str] = {'h': opt.h_net_ckpt, 'r': opt.r_net_ckpt, 'd': opt.d_net_ckpt}
+    ckpt_paths: Dict[str, str] = {
+        'h': opt.h_net_ckpt, 'r': opt.r_net_ckpt, 'd': opt.d_net_ckpt
+    }
 
+    optimizer_h, optimizer_r, optimizer_d = None, None, None
+    optimizer: Dict[str, torch.optim.Adam] = {
+        'h': optimizer_h, 'r': optimizer_r, 'd': optimizer_d
+    }
+
+    scheduler_h, scheduler_r, scheduler_d = None, None, None
+    scheduler: Dict[str, ReduceLROnPlateau] = {
+        'h': scheduler_h, 'r': scheduler_r, 'd': scheduler_d
+    }
+
+    # initialize the models
     h_net = UNet(in_channels=2, n_classes=1, depth=4, padding=True, up_mode='upsample').to(device)
     r_net = CeilNet(in_c=1, out_c=1).to(device)
     d_net = Discriminator(in_channels=1).to(device)
     net: Dict[str, nn.Module] = {'h': h_net, 'r': r_net, 'd': d_net}
 
-    optimizer_h, optimizer_r, optimizer_d = None, None, None
-    optimizer: Dict[str, torch.optim.Adam] = {'h': optimizer_h, 'r': optimizer_r, 'd': optimizer_d}
-
-    scheduler_h, scheduler_r, scheduler_d = None, None, None
-    scheduler: Dict[str, ReduceLROnPlateau] = {'h': scheduler_h, 'r': scheduler_r, 'd': scheduler_d}
-
+    # create optimizers and schedulers and load checkpoints if available
     for model in models:
-        optimizer[model] = torch.optim.Adam(net[model].parameters(), lr=opt.lr, betas=(opt.beta1, 0.999))
-        scheduler[model] = ReduceLROnPlateau(optimizer[model], mode='min', factor=0.2, patience=5, verbose=True)
+        optimizer[model] = torch.optim.Adam(
+            net[model].parameters(), lr=opt.lr, betas=(opt.beta1, 0.999)
+        )
+
+        scheduler[model] = ReduceLROnPlateau(
+            optimizer[model], mode='min', factor=0.2, patience=5, verbose=True
+        )
+
         if ckpt_paths[model] is not None:
             net[model].load_state_dict(torch.load(ckpt_paths[model]))
         logger.log_model(model=net[model], ckpt_path=ckpt_paths[model])
@@ -97,7 +106,7 @@ def main(opt: Namespace):
     mse = nn.MSELoss()
     half_batch_size = int(opt.batch_size / 2)
 
-    # prepare watermark for training
+    # prepare watermarks for training
     wm_trans = transforms.Compose([
         transforms.Grayscale(num_output_channels=1),
         transforms.ToTensor()
@@ -112,6 +121,8 @@ def main(opt: Namespace):
 
     # start training
     for epoch in range(opt.n_epochs):
+        logger.log(f'========== epoch {epoch:02d}/{opt.n_epochs} ==========')
+
         for phase in ['train', 'valid']:
             if phase == 'train':
                 for model in models:
@@ -181,24 +192,24 @@ def main(opt: Namespace):
                     cons_losses += cons_loss.detach().cpu()
 
                 # report losses
-                pbar.set_description(f'[{epoch}/{opt.n_epochs}][{i}/{n_batches}][{phase}] '
-                                     f'emb_ext_loss: {emb_ext_losses/i:.4f} | dis_loss: {dis_losses/i:.4f}')
+                pbar.set_description(f'[{epoch}/{opt.n_epochs}][{i+1}/{n_batches}][{phase}] '
+                                     f'emb_ext_loss: {emb_ext_losses / i+1:.4f} | dis_loss: {dis_losses / i+1:.4f}')
 
                 logger.log(
-                    f'[{epoch}/{opt.n_epochs}][{i}/{n_batches}][{phase}] '
-                    f'emb_ext_loss: {emb_ext_losses / i:.4f} | dis_loss: {dis_losses / i:.4f} | '
-                    f'adv_loss: {adv_losses / i:.4f} | mse_loss: {mse_losses / i:.4f} | '
-                    f'clean_loss: {clean_losses / i:.4f} | wm_loss: {wm_losses / i:.4f} | '
-                    f'cons_loss: {cons_losses / i:.4f}',
+                    f'[{epoch}/{opt.n_epochs}][{i+1}/{n_batches}][{phase}] '
+                    f'emb_ext_loss: {emb_ext_losses / (i+1):.4f} | dis_loss: {dis_losses / (i+1):.4f} | '
+                    f'adv_loss: {adv_losses / (i+1):.4f} | mse_loss: {mse_losses / (i+1):.4f} | '
+                    f'clean_loss: {clean_losses / (i+1):.4f} | wm_loss: {wm_losses / (i+1):.4f} | '
+                    f'cons_loss: {cons_losses / (i+1):.4f}',
                     write=i+1 == n_batches,
                 )
 
                 # plot images
-                if i % opt.plot_batch == 0:
+                if (i+1) % opt.plot_batch == 0:
                     save_img_batch(
                         opt=opt,
                         imgs=[watermark, img, img_rec, (img_wm - img)*50, img_wm, img_wm_rec],
-                        batch=i,
+                        batch=i+1,
                         epoch=epoch,
                         directory=plot_dir,
                         deblurring=False
@@ -244,16 +255,13 @@ if __name__ == '__main__':
 
     # paths to continue training
     parser.add_argument('--h_net_ckpt', type=str, nargs='?',
-                        default='image_watermarking/experiments/'
-                                'experiment_2023-08-26-21_27_47/checkpoints/h_net_ckpt_epoch_49.pt',
+                        default=None,
                         help='[optional] hiding network checkpoint path to continue training')
     parser.add_argument('--r_net_ckpt', type=str, nargs='?',
-                        default='image_watermarking/experiments/'
-                                'experiment_2023-08-26-21_27_47/checkpoints/r_net_ckpt_epoch_49.pt',
+                        default=None,
                         help='[optional] reconstruction network checkpoint path to continue training.')
     parser.add_argument('--d_net_ckpt', type=str, nargs='?',
-                        default='image_watermarking/experiments/'
-                                'experiment_2023-08-26-21_27_47/checkpoints/d_net_ckpt_epoch_49.pt',
+                        default=None,
                         help='[optional] discriminator checkpoint path to continue training.')
 
     # training settings
