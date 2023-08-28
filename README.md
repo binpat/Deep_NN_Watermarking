@@ -20,8 +20,6 @@ in many aspects from the original implementation.
 
 ## Usage
 
----
-
 To execute the files in this repository, clone the repository, set
 `Deep_NN_watermarking` as your working directory and execute the 
 following commands. 
@@ -114,17 +112,24 @@ python finetuning/main.py --ckpt_path <model checkpoint path> --wmark_sm_path_tr
 ```
 
 
-## Requirements 
-
----
+## Requirements
 
 This implementation was tested on an environment with \
 Python >= 3.10 \
 PyTorch >= 2.0.1
 
 
-## Licensing 
+## Licensing
 
----
+Files `models/discriminator.py` and `models/ceilnet.py` are adapted from 
+[this implementation](https://github.com/ZJZAC/Deep-Model-Watermarking)
+and available under the MIT open source license. 
+The license is added to the top of the respective files. 
 
-...
+File `models/unet.py` is taken from 
+[this implementation](https://github.com/schopfej/pytorch_unet_jvanvugt)
+and available under the MIT open source license. 
+The license is added to the top of the file. 
+
+All other files in this project are open source under the MIT license 
+as stated in `LICENSE`.
